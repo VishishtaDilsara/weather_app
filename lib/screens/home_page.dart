@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
+import 'package:weather_app/models/current_weather.dart';
+import 'package:weather_app/services/weather_services.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage extends StatelessWidget {
+  final CurrentWeather currentWeather;
+  const HomePage({super.key, required this.currentWeather});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +42,7 @@ class _HomePageState extends State<HomePage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Kandy',
+                                currentWeather.name,
                                 style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -55,7 +53,7 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    'Mist',
+                                    currentWeather.condition.text,
                                     style: TextStyle(
                                       color: Colors.grey.shade200,
                                       fontSize: 16,
@@ -67,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                                       right: 2,
                                     ),
                                     child: Text(
-                                      '28°C',
+                                      '${currentWeather.temp}°C',
                                       style: TextStyle(
                                         color: Colors.grey.shade200,
                                         fontWeight: FontWeight.bold,
@@ -76,7 +74,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   Image(
                                     image: NetworkImage(
-                                      'https://cdn.weatherapi.com/weather/64x64/day/263.png',
+                                      currentWeather.condition.icon,
                                     ),
                                     height: 25,
                                   ),
@@ -107,10 +105,15 @@ class _HomePageState extends State<HomePage> {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        CircleAvatar(
-                          backgroundColor: Colors.grey,
-                          backgroundImage: NetworkImage(
-                            'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?cs=srgb&dl=pexels-creationhill-1681010.jpg&fm=jpg',
+                        GestureDetector(
+                          onTap: () {
+                            WeatherServices().getCurrentWeather('Galle');
+                          },
+                          child: CircleAvatar(
+                            backgroundColor: Colors.grey,
+                            backgroundImage: NetworkImage(
+                              'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?cs=srgb&dl=pexels-creationhill-1681010.jpg&fm=jpg',
+                            ),
                           ),
                         ),
                       ],
