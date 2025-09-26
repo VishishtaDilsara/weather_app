@@ -28,5 +28,11 @@ class WeatherServices {
     final endPoint = 'http://api.weatherapi.com/v1/search.json?$apiKey&q=$text';
 
     final response = await http.get(Uri.parse(endPoint));
+    if (response.statusCode == 200) {
+      List<dynamic> result = jsonDecode(response.body);
+      Logger().f(result);
+    } else {
+      Logger().e(response.statusCode);
+    }
   }
 }

@@ -140,6 +140,11 @@ class HomePage extends StatelessWidget {
                                   hintText: 'Search here...',
                                 ),
                                 cursorColor: Colors.grey.shade800,
+                                onChanged: (value) async {
+                                  await WeatherServices().getAutoCompleteResult(
+                                    value,
+                                  );
+                                },
                               ),
                             ),
                             Icon(Icons.search, color: Colors.grey.shade800),
