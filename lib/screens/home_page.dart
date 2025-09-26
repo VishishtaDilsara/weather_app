@@ -10,6 +10,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.sizeOf(context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -105,15 +106,10 @@ class HomePage extends StatelessWidget {
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            WeatherServices().getCurrentWeather('Galle');
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: Colors.grey,
-                            backgroundImage: NetworkImage(
-                              'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?cs=srgb&dl=pexels-creationhill-1681010.jpg&fm=jpg',
-                            ),
+                        CircleAvatar(
+                          backgroundColor: Colors.grey,
+                          backgroundImage: NetworkImage(
+                            'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?cs=srgb&dl=pexels-creationhill-1681010.jpg&fm=jpg',
                           ),
                         ),
                       ],
@@ -136,9 +132,15 @@ class HomePage extends StatelessWidget {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              'Search here...',
-                              style: TextStyle(fontSize: 16),
+                            SizedBox(
+                              width: size.width * 0.65,
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Search here...',
+                                ),
+                                cursorColor: Colors.grey.shade800,
+                              ),
                             ),
                             Icon(Icons.search, color: Colors.grey.shade800),
                           ],

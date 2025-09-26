@@ -5,11 +5,12 @@ import 'package:logger/logger.dart';
 import 'package:weather_app/models/current_weather.dart';
 
 class WeatherServices {
+  String apiKey = 'key=ac6c3926fbcf416896242113252509';
   //http://api.weatherapi.com/v1/current.json?key=ac6c3926fbcf416896242113252509&q=Galle
 
-  Future<CurrentWeather? > getCurrentWeather(String query) async {
+  Future<CurrentWeather?> getCurrentWeather(String query) async {
     final endPoint =
-        'http://api.weatherapi.com/v1/current.json?key=ac6c3926fbcf416896242113252509&q=$query';
+        'http://api.weatherapi.com/v1/current.json?$apiKey&q=$query';
 
     final response = await http.get(Uri.parse(endPoint));
     if (response.statusCode == 200) {
@@ -21,5 +22,11 @@ class WeatherServices {
       Logger().e(response.statusCode);
       return null;
     }
+  }
+
+  Future<void> getAutoCompleteResult(String text) async {
+    final endPoint = 'http://api.weatherapi.com/v1/search.json?$apiKey&q=$text';
+
+    final response = await http.get(Uri.parse(endPoint));
   }
 }

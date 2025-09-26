@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:logger/logger.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/screens/home_page.dart';
 import 'package:weather_app/services/weather_services.dart';
@@ -17,7 +20,17 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 1), () async {
-      final currentWeather = await WeatherServices().getCurrentWeather('Galle');
+      final position = await getLocation();
+      Logger().f(position);
+
+      String query = '';
+      if (position == null) {
+        query = 'colombo';
+      } else {
+        query = '${position.latitude},${position.longitude}';
+      }
+
+      final currentWeather = await WeatherServices().getCurrentWeather(query);
       if (currentWeather != null) {
         Navigator.pushReplacement(
           context,
@@ -27,6 +40,33 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       }
     });
+  }
+
+  Future<Position?> getLocation() async {
+    final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isServiceEnabled) {
+      await Geolocator.openLocationSettings();
+      return null;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, return null.
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are denied forever, handle appropriately.
+      await Geolocator.openAppSettings();
+      return null;
+    }
+
+    // When permissions are granted, get the position.
+    final position = await Geolocator.getCurrentPosition();
+    return position;
   }
 
   @override
