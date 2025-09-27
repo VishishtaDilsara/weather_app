@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/prediction_model.dart';
+import 'package:weather_app/screens/place_view.dart';
 import 'package:weather_app/services/weather_services.dart';
 
 class HomePage extends StatefulWidget {
@@ -176,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
-            if (predictions.isNotEmpty)
+            if (predictions.isNotEmpty && queryController.text.isNotEmpty)
               MediaQuery.removePadding(
                 context: context,
                 removeTop: true,
@@ -189,6 +190,19 @@ class _HomePageState extends State<HomePage> {
                     return ListTile(
                       title: Text(predictions[index].name),
                       subtitle: Text(predictions[index].country),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PlaceView(prediction: predictions[index]),
+                          ),
+                        );
+
+                        setState(() {
+                          queryController.clear();
+                        });
+                      },
                     );
                   },
                 ),
