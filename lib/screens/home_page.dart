@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lottie/lottie.dart';
 import 'package:weather_app/models/current_weather.dart';
+import 'package:weather_app/models/hourly_weather.dart';
 import 'package:weather_app/models/prediction_model.dart';
 import 'package:weather_app/screens/place_view.dart';
 import 'package:weather_app/services/weather_services.dart';
@@ -15,8 +16,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late Future<List<HourlyWeather>> hourlyWeatherList;
+
   TextEditingController queryController = TextEditingController();
   List<PredictionModel> predictions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    hourlyWeatherList = WeatherServices().getHourlyWeather(
+      widget.currentWeather.name,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -224,42 +235,63 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  SizedBox(
-                    height: 136,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 10,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SizedBox(
-                            width: 100,
-                            height: 120,
-                            child: Card(
-                              color: Colors.white,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '05:00 AM',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade900,
-                                      fontWeight: FontWeight.bold,
+                  FutureBuilder(
+                    future: hourlyWeatherList,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      }
+                      if (snapshot.hasError || snapshot.data == null) {
+                        return Text('Something Went wrong...');
+                      }
+                      if (snapshot.data!.isEmpty) {
+                        return Text('No data found...');
+                      }
+                      List<HourlyWeather> hourlyWeather = snapshot.data!;
+                      return SizedBox(
+                        height: 136,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: hourlyWeather.length,
+                          itemBuilder: (context, index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SizedBox(
+                                width: 100,
+                                height: 120,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    WeatherServices().getHourlyWeather(
+                                      widget.currentWeather.name,
+                                    );
+                                  },
+                                  child: Card(
+                                    color: Colors.white,
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '${hourlyWeather[index].time.hour}',
+                                          style: TextStyle(
+                                            color: Colors.grey.shade900,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Image.network(
+                                          hourlyWeather[index].condition.icon,
+                                        ),
+                                        Text('${hourlyWeather[index].temp}°C'),
+                                      ],
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.cloud_outlined,
-                                    size: 50,
-                                    color: Colors.grey,
-                                  ),
-                                  Text('28°C'),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
