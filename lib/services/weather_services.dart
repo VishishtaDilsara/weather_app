@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:weather_app/models/current_weather.dart';
+import 'package:weather_app/models/prediction_model.dart';
 
 class WeatherServices {
   String apiKey = 'key=ac6c3926fbcf416896242113252509';
@@ -24,15 +25,19 @@ class WeatherServices {
     }
   }
 
-  Future<void> getAutoCompleteResult(String text) async {
+  Future<List<PredictionModel>> getAutoCompleteResult(String text) async {
     final endPoint = 'http://api.weatherapi.com/v1/search.json?$apiKey&q=$text';
 
     final response = await http.get(Uri.parse(endPoint));
     if (response.statusCode == 200) {
       List<dynamic> result = jsonDecode(response.body);
-      Logger().f(result);
+      List<PredictionModel> predictions = result
+          .map((data) => PredictionModel.fromJson(data))
+          .toList();
+      return predictions;
     } else {
       Logger().e(response.statusCode);
+      return [];
     }
   }
 }
