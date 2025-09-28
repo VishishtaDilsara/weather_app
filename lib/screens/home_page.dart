@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:weather_app/models/astro_model.dart';
 import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/hourly_weather.dart';
@@ -223,14 +224,58 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-            LottieBuilder.asset('assets/lotties/sunriseNew.json'),
+            LottieBuilder.asset('assets/lotties/sunrise.json'),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: FutureBuilder(
                 future: astroModel,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              'Sunrise',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade500,
+                              child: Container(
+                                width: 100,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              'Sunset',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade500,
+                              child: Container(
+                                width: 100,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
                   }
                   if (snapshot.hasError || snapshot.data == null) {
                     return Text('Something Went Wrong...');
@@ -290,7 +335,28 @@ class _HomePageState extends State<HomePage> {
                     future: hourlyWeatherList,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(5, (index) {
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Shimmer.fromColors(
+                                  baseColor: Colors.grey.shade300,
+                                  highlightColor: Colors.grey.shade500,
+                                  child: Container(
+                                    width: 100,
+                                    height: 136,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
+                        );
                       }
                       if (snapshot.hasError || snapshot.data == null) {
                         return Text('Something Went wrong...');
@@ -316,11 +382,7 @@ class _HomePageState extends State<HomePage> {
                                 width: 100,
                                 height: 120,
                                 child: GestureDetector(
-                                  onTap: () {
-                                    WeatherServices().getHourlyWeather(
-                                      widget.currentWeather.name,
-                                    );
-                                  },
+                                  onTap: () {},
                                   child: Card(
                                     color: Colors.white,
                                     child: Column(
