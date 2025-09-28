@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+import 'package:weather_app/models/astro_model.dart';
 import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/hourly_weather.dart';
 import 'package:weather_app/models/prediction_model.dart';
@@ -17,6 +19,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<HourlyWeather>> hourlyWeatherList;
+  late Future<AstroModel?> astroModel;
 
   TextEditingController queryController = TextEditingController();
   List<PredictionModel> predictions = [];
@@ -27,6 +30,7 @@ class _HomePageState extends State<HomePage> {
     hourlyWeatherList = WeatherServices().getHourlyWeather(
       widget.currentWeather.name,
     );
+    astroModel = WeatherServices().getAstronomyData(widget.currentWeather.name);
   }
 
   @override
@@ -219,6 +223,53 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
+            LottieBuilder.asset('assets/lotties/sunriseNew.json'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FutureBuilder(
+                future: astroModel,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  }
+                  if (snapshot.hasError || snapshot.data == null) {
+                    return Text('Something Went Wrong...');
+                  }
+                  final astroModel = snapshot.data!;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Sunrise',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Text(astroModel.sunrise),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Sunset',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Text(astroModel.sunset),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
@@ -247,7 +298,12 @@ class _HomePageState extends State<HomePage> {
                       if (snapshot.data!.isEmpty) {
                         return Text('No data found...');
                       }
-                      List<HourlyWeather> hourlyWeather = snapshot.data!;
+                      List<HourlyWeather> hourlyWeather = snapshot.data!
+                          .where(
+                            (element) =>
+                                element.time.hour > DateTime.now().hour,
+                          )
+                          .toList();
                       return SizedBox(
                         height: 136,
                         child: ListView.builder(
@@ -272,14 +328,22 @@ class _HomePageState extends State<HomePage> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Text(
-                                          '${hourlyWeather[index].time.hour}',
+                                          DateFormat(
+                                            'hh:mm a',
+                                          ).format(hourlyWeather[index].time),
                                           style: TextStyle(
                                             color: Colors.grey.shade900,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                        Image.network(
-                                          hourlyWeather[index].condition.icon,
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8,
+                                          ),
+                                          child: Image.network(
+                                            hourlyWeather[index].condition.icon,
+                                            width: 40,
+                                          ),
                                         ),
                                         Text('${hourlyWeather[index].temp}°C'),
                                       ],

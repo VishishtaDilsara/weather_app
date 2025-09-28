@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:weather_app/models/astro_model.dart';
 import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/hourly_weather.dart';
 import 'package:weather_app/models/prediction_model.dart';
@@ -63,6 +64,21 @@ class WeatherServices {
     } catch (e) {
       Logger().e(e);
       return [];
+    }
+  }
+
+  Future<AstroModel?> getAstronomyData(String query) async {
+    final endPoint =
+        'http://api.weatherapi.com/v1/astronomy.json?$apiKey&q=$query';
+
+    final response = await http.get(Uri.parse(endPoint));
+    if (response.statusCode == 200) {
+      Map<String, dynamic> body = jsonDecode(response.body);
+      final astroModel = AstroModel.fromJson(body['astronomy']['astro']);
+      return astroModel;
+    } else {
+      Logger().e(response.statusCode);
+      return null;
     }
   }
 }
