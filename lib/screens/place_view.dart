@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:lottie/lottie.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:weather_app/models/astro_model.dart';
 import 'package:weather_app/models/current_weather.dart';
 import 'package:weather_app/models/hourly_weather.dart';
 import 'package:weather_app/models/prediction_model.dart';
@@ -18,6 +20,7 @@ class PlaceView extends StatefulWidget {
 class _PlaceViewState extends State<PlaceView> {
   late Future<CurrentWeather?> getCurrentWeather;
   late Future<List<HourlyWeather>> hourlyWeatherList;
+  late Future<AstroModel?> astroModel;
 
   @override
   void initState() {
@@ -28,6 +31,7 @@ class _PlaceViewState extends State<PlaceView> {
     hourlyWeatherList = WeatherServices().getHourlyWeather(
       widget.prediction.name,
     );
+    astroModel = WeatherServices().getAstronomyData(widget.prediction.name);
   }
 
   @override
@@ -115,6 +119,98 @@ class _PlaceViewState extends State<PlaceView> {
                 ),
               ),
             ),
+
+            LottieBuilder.asset('assets/lotties/sunrise.json'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: FutureBuilder(
+                future: astroModel,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            Text(
+                              'Sunrise',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade500,
+                              child: Container(
+                                width: 100,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              'Sunset',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15,
+                              ),
+                            ),
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey.shade300,
+                              highlightColor: Colors.grey.shade500,
+                              child: Container(
+                                width: 100,
+                                height: 20,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }
+                  if (snapshot.hasError || snapshot.data == null) {
+                    return Text('Something Went Wrong...');
+                  }
+                  final astroModel = snapshot.data!;
+
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            'Sunrise',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Text(astroModel.sunrise),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'Sunset',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                          Text(astroModel.sunset),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
